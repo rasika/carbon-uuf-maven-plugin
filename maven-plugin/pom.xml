@@ -53,6 +53,10 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.wso2.carbon.maven</groupId>
+            <artifactId>carbon-feature-plugin</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
