@@ -68,17 +68,32 @@ public class ApplicationUUFMojo extends AbstractUUFMojo {
     @Parameter(defaultValue = "2.1")
     private String dependencyPluginVersion;
 
-    /**
-     * Plugin manager to unpack the dependencies.
-     */
-    @Component
-    private BuildPluginManager pluginManager;
-
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws MojoExecutionException {
         unpackDependencies();
-        createDependencyConfig("::" + UUF_THEME_ASSEMBLY_FORMAT + ":");
+        createDependencyConfig("::" + THEME_ASSEMBLY_FORMAT + ":");
         normalizeAppDependencies();
-        super.execute();
+        executeFeatureDependecies();
+        createFeature();
+//        super.execute();
+    }
+
+    private void executeFeatureDependecies() throws MojoExecutionException {
+        //Adding dependent components and themes
+        Path uufTempDirectory = getUUFTempDirectory();
+        try {
+            DependencyHolder dependencies = getDependencies(uufTempDirectory);
+            for (Path currentTheme : dependencies.getThemes()) {
+                fileSets.add(createFileSet(currentTheme.toString(), THEMES_PATH + currentTheme.getFileName()));
+            }
+            for (Path currentComponent : dependencies.getComponents()) {
+                fileSets.add(
+                        createFileSet(currentComponent.toString(), COMPONENTS_PATH + currentComponent.getFileName())
+                );
+            }
+        } catch (IOException e) {
+            throw new MojoExecutionException(
+                    "Error occurred while reading extracted dependencies on '" + uufTempDirectory.toString() + "'");
+        }
     }
 
     @Override
@@ -95,7 +110,7 @@ public class ApplicationUUFMojo extends AbstractUUFMojo {
                 ),
                 goal("unpack-dependencies"),
                 configuration(element(name("outputDirectory"), getUUFTempDirectory().toString())),
-                executionEnvironment(getProject(), getMavenSession(), pluginManager)
+                executionEnvironment(getProject(), getMavenSession(), getPluginManager())
         );
     }
 
@@ -170,7 +185,7 @@ public class ApplicationUUFMojo extends AbstractUUFMojo {
 
         //Setting format
         List<String> formatsList = new ArrayList<>();
-        formatsList.add(UUF_COMPONENT_ASSEMBLY_FORMAT);
+        formatsList.add(COMPONENT_ASSEMBLY_FORMAT);
         assembly.setFormats(formatsList);
         return assembly;
     }
@@ -192,10 +207,6 @@ public class ApplicationUUFMojo extends AbstractUUFMojo {
 
     protected Path getUUFOsgiConfigOutDirectory() {
         return getUUFTempDirectory().resolve(ROOT_COMPONENT_NAME);
-    }
-
-    protected BuildPluginManager getPluginManager() {
-        return this.pluginManager;
     }
 
     private static class DependencyHolder {

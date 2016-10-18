@@ -48,7 +48,7 @@ public class ThemeUUFMojo extends AbstractUUFMojo {
         assembly.setFileSets(createFileSetList(fileSet1, fileSet2));
 
         List<String> formatsList = new ArrayList<>();
-        formatsList.add(UUF_THEME_ASSEMBLY_FORMAT);
+        formatsList.add(THEME_ASSEMBLY_FORMAT);
         assembly.setFormats(formatsList);
         return assembly;
     }

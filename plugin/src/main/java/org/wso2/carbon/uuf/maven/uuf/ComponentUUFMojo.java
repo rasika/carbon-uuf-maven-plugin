@@ -16,6 +16,7 @@
 
 package org.wso2.carbon.uuf.maven.uuf;
 
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.assembly.model.Assembly;
 import org.apache.maven.plugin.assembly.model.FileSet;
@@ -33,6 +34,11 @@ import java.util.List;
       threadSafe = true, defaultPhase = LifecyclePhase.PACKAGE)
 public class ComponentUUFMojo extends AbstractUUFMojo {
 
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        createFeature();
+        //super.execute();
+    }
+
     @Override
     protected Assembly getAssembly() throws MojoFailureException {
         return createComponentAssembly("make-component", "/" + getSimpleArtifactId());
@@ -48,7 +54,7 @@ public class ComponentUUFMojo extends AbstractUUFMojo {
         assembly.setFileSets(createFileSetList(fileSet1, fileSet2));
 
         List<String> formatsList = new ArrayList<>();
-        formatsList.add(UUF_COMPONENT_ASSEMBLY_FORMAT);
+        formatsList.add(COMPONENT_ASSEMBLY_FORMAT);
         assembly.setFormats(formatsList);
         return assembly;
     }
